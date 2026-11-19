@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Src/">
+    <Project Path="src/Sidio.Http/Sidio.Http.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/Sidio.Http.Tests/Sidio.Http.Tests.csproj" />
+  </Folder>
+</Solution>
