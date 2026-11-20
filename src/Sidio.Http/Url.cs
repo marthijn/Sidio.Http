@@ -131,6 +131,11 @@ public sealed partial class Url
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the URL is absolute (has both a scheme and a host).
+    /// </summary>
+    public bool IsAbsolute => !string.IsNullOrEmpty(Scheme) && !string.IsNullOrEmpty(Host);
+
     /// <inheritdoc />
     public override string ToString()
     {
@@ -197,30 +202,50 @@ public sealed partial class Url
     {
         var url = new Url();
 
-        if (!string.IsNullOrEmpty(uri.Scheme))
+        if (uri.IsAbsoluteUri)
         {
-            url.WithScheme(uri.Scheme);
-        }
+            if (!string.IsNullOrEmpty(uri.Scheme))
+            {
+                url.WithScheme(uri.Scheme);
+            }
 
-        if (!string.IsNullOrEmpty(uri.Host))
-        {
-            url.WithHost(uri.Host);
-        }
+            if (!string.IsNullOrEmpty(uri.Host))
+            {
+                url.WithHost(uri.Host);
+            }
 
-        if (uri.Port >= 0)
-        {
-            url.WithPort(uri.Port);
-        }
+            if (uri.Port >= 0)
+            {
+                url.WithPort(uri.Port);
+            }
 
-        if (!string.IsNullOrEmpty(uri.AbsolutePath) && uri.AbsolutePath != "/")
-        {
-            var decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
-            url.AppendPath(decodedPath);
-        }
+            if (!string.IsNullOrEmpty(uri.AbsolutePath) && uri.AbsolutePath != "/")
+            {
+                var decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
+                url.AppendPath(decodedPath);
+            }
 
-        if (!string.IsNullOrEmpty(uri.Query))
+            if (!string.IsNullOrEmpty(uri.Query))
+            {
+                url._queryParameters = new QueryParameterCollection(uri.Query);
+            }
+        }
+        else
         {
-            url._queryParameters = new QueryParameterCollection(uri.Query);
+            var queryIndex = uri.OriginalString.IndexOf('?');
+            var pathPart = queryIndex >= 0 ? uri.OriginalString.Substring(0, queryIndex) : uri.OriginalString;
+            var queryPart = queryIndex >= 0 ? uri.OriginalString.Substring(queryIndex + 1) : null;
+
+            if (!string.IsNullOrEmpty(pathPart))
+            {
+                var decodedPath = Uri.UnescapeDataString(pathPart);
+                url.AppendPath(decodedPath);
+            }
+
+            if (!string.IsNullOrEmpty(queryPart))
+            {
+                url._queryParameters = new QueryParameterCollection(queryPart);
+            }
         }
 
         return url;

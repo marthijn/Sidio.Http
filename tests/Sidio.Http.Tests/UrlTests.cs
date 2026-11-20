@@ -108,4 +108,22 @@ public sealed partial class UrlTests
         url2.Should().BeSameAs(url);
         url.ToString().Should().Be("https://example.com/path");
     }
+
+    [Theory]
+    [InlineData("https://example.com/path?a=1", true)]
+    [InlineData("http://example.com/path", true)]
+    [InlineData("example.com/path", false)]
+    [InlineData("/relative/path", false)]
+    [InlineData("/relative/path?a=b", false)]
+    public void IsAbsolute_ShouldReturnExpected(string url, bool expected)
+    {
+        // Arrange
+        var sut = Url.From(url);
+
+        // Act
+        var result = sut.IsAbsolute;
+
+        // Assert
+        result.Should().Be(expected);
+    }
 }
