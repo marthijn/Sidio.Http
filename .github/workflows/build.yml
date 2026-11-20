@@ -43,7 +43,7 @@ jobs:
       - name: dotnet build,test and sonar analyze
         run: |
           dotnet sonarscanner begin \
-          -k:"marthijn_Sidio.Web.Security" \
+          -k:"marthijn_Sidio.Http" \
           -o:"marthijn" \
           -d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
           -d:sonar.host.url="https://sonarcloud.io/" \
