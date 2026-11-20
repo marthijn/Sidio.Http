@@ -47,4 +47,65 @@ public sealed partial class UrlTests
         url.Port.Should().BeNull();
         url.PathSegments.Should().BeEquivalentTo("path1", "path2", "path3");
     }
+
+    [Fact]
+    public void From_WithUriWithQuery_MergesDuplicateQueryValues()
+    {
+        // Arrange
+        var uri = new Uri("https://example.com/search?q=one&q=two", UriKind.Absolute);
+
+        // Act
+        var url = Url.From(uri);
+
+        // Assert
+        url.QueryParameters.TryGetValues("q", out var values).Should().BeTrue();
+        values.Should().Equal("one", "two");
+    }
+
+    [Fact]
+    public void ToString_WithComponents_ShouldBuildUrl()
+    {
+        // Arrange
+        var url = new Url()
+            .WithScheme("https")
+            .WithHost("example.com")
+            .WithPort(8443)
+            .AppendPath("path 1", "path2")
+            .WithQueryParameter("q", "hello world")
+            .WithQueryParameter("tag", new[] { "one", "two" });
+
+        // Act
+        var result = url.ToString();
+
+        // Assert
+        result.Should().Be("https://example.com:8443/path%201/path2?q=hello%20world&tag=one&tag=two");
+    }
+
+    [Fact]
+    public void SetPath_ShouldReplaceExistingPath()
+    {
+        // Arrange
+        var url = new Url().AppendPath("old", "path");
+
+        // Act
+        var url2 = url.SetPath("/new/path/");
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.PathSegments.Should().BeEquivalentTo("new", "path");
+    }
+
+    [Fact]
+    public void ClearQueryParameters_ShouldRemoveQueryString()
+    {
+        // Arrange
+        var url = Url.From("https://example.com/path?a=1");
+
+        // Act
+        var url2 = url.ClearQueryParameters();
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.ToString().Should().Be("https://example.com/path");
+    }
 }

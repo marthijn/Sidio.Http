@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Sidio.Http;
+﻿namespace Sidio.Http;
+using System.Text;
 
 public sealed partial class Url
 {
     private const char PathSeparator = '/';
 
     private readonly List<string> _pathSegments = new();
+    private QueryParameterCollection? _queryParameters;
 
     public Url()
     {
@@ -18,7 +17,7 @@ public sealed partial class Url
         get;
         private set
         {
-            var trimmedValue = value?.Trim().ToLowerInvariant();
+            var trimmedValue = value?.Trim();
             if (trimmedValue is not null && !trimmedValue.Equals("http", StringComparison.OrdinalIgnoreCase) && !trimmedValue.Equals("https", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("Scheme must be either 'http' or 'https'.", nameof(value));
@@ -31,7 +30,6 @@ public sealed partial class Url
     /// <summary>
     /// Gets the host of the URL.
     /// </summary>
-    /// <exception cref="ArgumentException">Thrown when the host is invalid.</exception>
     public string? Host
     {
         get;
@@ -56,20 +54,27 @@ public sealed partial class Url
                 }
 
                 var hostToCheck = trimmedValue;
-                if (!hostToCheck.StartsWith("//")
-                    && !hostToCheck.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                if (hostToCheck.StartsWith("//", StringComparison.Ordinal))
+                {
+                    hostToCheck = "https:" + hostToCheck;
+                }
+                else if (!hostToCheck.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
                     && !hostToCheck.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Prepend scheme for validation
                     hostToCheck = "https://" + hostToCheck;
                 }
 
-                if (!Uri.CheckHostName(hostToCheck).Equals(UriHostNameType.Unknown))
+                if (!Uri.TryCreate(hostToCheck, UriKind.Absolute, out var uri))
                 {
                     throw new ArgumentException("Host must be a valid hostname or IP address.", nameof(value));
                 }
 
-                var uri = new Uri(hostToCheck, UriKind.Absolute);
+                var hostNameToCheck = uri.Host.Trim('[', ']');
+                if (Uri.CheckHostName(hostNameToCheck).Equals(UriHostNameType.Unknown))
+                {
+                    throw new ArgumentException("Host must be a valid hostname or IP address.", nameof(value));
+                }
+
                 trimmedValue = uri.Host;
             }
 
@@ -77,6 +82,9 @@ public sealed partial class Url
         }
     }
 
+    /// <summary>
+    /// Gets the port of the URL. If the port is the default for the scheme (80 for HTTP, 443 for HTTPS), it will be null.
+    /// </summary>
     public int? Port
     {
         get;
@@ -102,35 +110,115 @@ public sealed partial class Url
         }
     }
 
+    /// <summary>
+    /// Gets the path segments of the URL.
+    /// </summary>
     public IReadOnlyList<string> PathSegments => _pathSegments.AsReadOnly();
 
+    /// <summary>
+    /// Gets the query parameters of the URL.
+    /// </summary>
+    public QueryParameterCollection QueryParameters
+    {
+        get
+        {
+            _queryParameters ??= new QueryParameterCollection();
+            return _queryParameters;
+        }
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+
+        if (!string.IsNullOrEmpty(Scheme))
+        {
+            builder.Append(Scheme);
+            builder.Append("://");
+        }
+
+        if (!string.IsNullOrEmpty(Host))
+        {
+            builder.Append(Host);
+        }
+
+        if (Port.HasValue)
+        {
+            builder.Append(':');
+            builder.Append(Port.Value);
+        }
+
+        foreach (var segment in _pathSegments)
+        {
+            builder.Append(PathSeparator);
+            builder.Append(Uri.EscapeDataString(segment));
+        }
+
+        if ( _queryParameters is {Count: > 0})
+        {
+            var queryString = _queryParameters.ToQueryString(false);
+            builder.Append('?');
+            builder.Append(queryString);
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Url"/> instance from the specified URL string.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public static Url From(string url)
     {
-        if (string.IsNullOrWhiteSpace(url))
-        {
-            throw new ArgumentException("URL cannot be null or whitespace.", nameof(url));
-        }
-
-        return Create(new Uri(url, UriKind.RelativeOrAbsolute), url);
+        return string.IsNullOrWhiteSpace(url)
+            ? throw new ArgumentException("URL cannot be null or whitespace.", nameof(url))
+            : Create(new Uri(url, UriKind.RelativeOrAbsolute));
     }
 
+    /// <summary>
+    /// Creates a new <see cref="Url"/> instance from the specified <see cref="Uri"/> object.
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public static Url From(Uri uri)
     {
-        if (uri == null)
-        {
-            throw new ArgumentNullException(nameof(uri), "URI cannot be null.");
-        }
-
-        return Create(uri, uri.OriginalString);
+        return uri == null ? throw new ArgumentNullException(nameof(uri), "URI cannot be null.") : Create(uri);
     }
 
-    private static Url Create(Uri uri, string originalString)
+    private static Url Create(Uri uri)
     {
-        var url = new Url()
-            .WithHost(uri.Host)
-            .WithScheme(uri.Scheme)
-            .WithPort(uri.Port)
-            .AppendPath(uri.AbsolutePath);
+        var url = new Url();
+
+        if (!string.IsNullOrEmpty(uri.Scheme))
+        {
+            url.WithScheme(uri.Scheme);
+        }
+
+        if (!string.IsNullOrEmpty(uri.Host))
+        {
+            url.WithHost(uri.Host);
+        }
+
+        if (uri.Port >= 0)
+        {
+            url.WithPort(uri.Port);
+        }
+
+        if (!string.IsNullOrEmpty(uri.AbsolutePath) && uri.AbsolutePath != "/")
+        {
+            var decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
+            url.AppendPath(decodedPath);
+        }
+
+        if (!string.IsNullOrEmpty(uri.Query))
+        {
+            url._queryParameters = new QueryParameterCollection(uri.Query);
+        }
+
         return url;
     }
 }
