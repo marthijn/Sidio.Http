@@ -126,4 +126,34 @@ public sealed partial class UrlTests
         // Assert
         result.Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData("https://localhost/relative/path", "https://localhost/relative/path")]
+    [InlineData("http://localhost/relative/path", "http://localhost/relative/path")]
+    public void ToAbsoluteUrl_ShouldReturnAbsoluteUrl(string url, string expected)
+    {
+        // Arrange
+        var sut = Url.From(url);
+
+        // Act
+        var result = sut.ToAbsoluteUrl();
+
+        // Assert
+        result.Value.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("/relative/path")]
+    [InlineData("//localhost/relative/path")]
+    public void ToAbsoluteUrl_WhenUrlIsNotAbsolute_ShouldThrowInvalidOperationException(string url)
+    {
+        // Arrange
+        var sut = Url.From(url);
+
+        // Act
+        Action act = () => sut.ToAbsoluteUrl();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>();
+    }
 }

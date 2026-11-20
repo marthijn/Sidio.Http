@@ -75,6 +75,16 @@ url.ClearQueryParameters();
 
 For direct query collection access, use `QueryParameters`. It supports case-insensitive key lookup and repeated values.
 
+### Ensure an absolute URL
+
+```csharp
+var url = new Url("https://example.com/api");
+var absoluteUrl = url.ToAbsoluteUrl();
+
+var relativeUrl = new Url("/api");
+_ = relativeUrl.ToAbsoluteUrl(); // throws InvalidOperationException
+```
+
 ## Fluent HTTP Client
 To be added in the future.
 

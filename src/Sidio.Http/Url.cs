@@ -136,6 +136,19 @@ public sealed partial class Url
     /// </summary>
     public bool IsAbsolute => !string.IsNullOrEmpty(Scheme) && !string.IsNullOrEmpty(Host);
 
+    /// <summary>
+    /// Converts the current <see cref="Url"/> instance to an <see cref="AbsoluteUrl"/> instance.
+    /// </summary>
+    /// <returns>An <see cref="AbsoluteUrl"/> instance representing the absolute URL.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the URL is not absolute.</exception>
+    public AbsoluteUrl ToAbsoluteUrl()
+    {
+        return !IsAbsolute
+            ? throw new InvalidOperationException(
+                $"Cannot convert {this} to AbsoluteUrl because the URL is not absolute.")
+            : new AbsoluteUrl(this);
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {
