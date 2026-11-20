@@ -1,6 +1,10 @@
 ﻿namespace Sidio.Http;
 using System.Text;
 
+/// <summary>
+/// Represents a URL and provides methods to manipulate its components, including scheme,
+/// host, port, path segments, and query parameters.
+/// </summary>
 public sealed partial class Url
 {
     private const char PathSeparator = '/';
@@ -8,17 +12,17 @@ public sealed partial class Url
     private readonly List<string> _pathSegments = new();
     private QueryParameterCollection? _queryParameters;
 
-    public Url()
-    {
-    }
-
+    /// <summary>
+    /// Gets the scheme of the URL. Valid values are "http" and "https". If not set, it will be null.
+    /// </summary>
     public string? Scheme
     {
         get;
         private set
         {
             var trimmedValue = value?.Trim();
-            if (trimmedValue is not null && !trimmedValue.Equals("http", StringComparison.OrdinalIgnoreCase) && !trimmedValue.Equals("https", StringComparison.OrdinalIgnoreCase))
+            if (trimmedValue is not null && !trimmedValue.Equals("http", StringComparison.OrdinalIgnoreCase) &&
+                !trimmedValue.Equals("https", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("Scheme must be either 'http' or 'https'.", nameof(value));
             }
