@@ -10,4 +10,10 @@
   <Folder Name="/Tests/">
     <Project Path="tests/Sidio.Http.Tests/Sidio.Http.Tests.csproj" />
   </Folder>
+  <Folder Name="/Workflows/">
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/dependabot-autoapprove.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
 </Solution>
