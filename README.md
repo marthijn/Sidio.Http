@@ -78,6 +78,9 @@ For direct query collection access, use `QueryParameters`. It supports case-inse
 ## Fluent HTTP Client
 To be added in the future.
 
+## HTTP testing framework
+To be added in the future.
+
 # Background
 This library is inspired by [Flurl](https://flurl.dev/), which is unfortunately no longer maintained. 
 The goal of this library is to provide a simple, fluent, and testable HTTP client for .NET applications.
