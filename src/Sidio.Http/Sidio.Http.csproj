@@ -7,4 +7,8 @@
         <LangVersion>Latest</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    </ItemGroup>
+
 </Project>
