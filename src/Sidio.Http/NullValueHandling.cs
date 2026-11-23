@@ -1,5 +1,8 @@
 ﻿namespace Sidio.Http;
 
+/// <summary>
+/// Specifies how null values should be handled when adding query parameters to a <see cref="QueryParameterCollection"/>.
+/// </summary>
 public enum NullValueHandling
 {
     /// <summary>

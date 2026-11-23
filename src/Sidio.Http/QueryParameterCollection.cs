@@ -4,6 +4,10 @@ using System.Text;
 
 namespace Sidio.Http;
 
+/// <summary>
+/// Represents a collection of query parameters that can be used to build a query string for a URL.
+/// The collection supports adding, removing, and retrieving query parameters, as well as converting the collection to a query string.
+/// </summary>
 public sealed class QueryParameterCollection
 {
     private readonly Dictionary<EncodedQueryParameterKey, List<string>> _parameters = new(new QueryParameterKeyComparer());
@@ -23,8 +27,8 @@ public sealed class QueryParameterCollection
     /// <summary>
     /// Adds a query parameter to the collection.
     /// </summary>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
+    /// <param name="key">The key of the query parameter.</param>
+    /// <param name="value">The value of the query parameter.</param>
     /// <param name="encode">Indicates whether the key and value should be URL-encoded.</param>
     /// <param name="nullValueHandling">Indicates how null values should be handled.</param>
     /// <exception cref="ArgumentException">Thrown if a parameter with the same key already exists in the collection.</exception>
