@@ -25,4 +25,17 @@ public readonly record struct AbsoluteUrl
 
     /// <inheritdoc />
     public override string ToString() => Value;
+
+    /// <summary>
+    /// Converts a <see cref="AbsoluteUrl"/> to a <see cref="Uri"/>.
+    /// </summary>
+    /// <param name="url">The URL to convert.</param>
+    /// <returns>An absolute or relative URI representing the URL.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the URL cannot be represented as a URI.</exception>
+    public static implicit operator Uri(AbsoluteUrl url)
+    {
+        return Uri.TryCreate(url.Value, UriKind.Absolute, out var absoluteUri)
+            ? absoluteUri
+            : throw new InvalidOperationException($"Cannot convert '{url}' to a URI.");
+    }
 }
