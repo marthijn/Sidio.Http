@@ -18,7 +18,11 @@ public sealed partial class UrlTests
     [InlineData("https://example.com:8080", "https", "example.com", 8080)]
     [InlineData("http://example.com:80", "http", "example.com", null)]
     [InlineData("http://example.com", "http", "example.com", null)]
-    public void From_WithUri_ReturnsUrlWithCorrectProperties(string input, string expectedScheme, string expectedHost, int? expectedPort)
+    public void From_WithUri_ReturnsUrlWithCorrectProperties(
+        string input,
+        string expectedScheme,
+        string expectedHost,
+        int? expectedPort)
     {
         // Arrange
         var uri = new Uri(input, UriKind.Absolute);
@@ -72,7 +76,7 @@ public sealed partial class UrlTests
             .WithPort(8443)
             .AppendPath("path 1", "path2")
             .WithQueryParameter("q", "hello world")
-            .WithQueryParameter("tag", new[] { "one", "two" });
+            .WithQueryParameter("tag", new[] {"one", "two"});
 
         // Act
         var result = url.ToString();
@@ -229,5 +233,80 @@ public sealed partial class UrlTests
         roundTripped.PathSegments.Should().Equal("search");
         roundTripped.QueryParameters.TryGetValues("q", out var values).Should().BeTrue();
         values.Should().Equal("one", "two");
+    }
+
+    [Fact]
+    public void ClearPath_ShouldRemoveAllPathSegments()
+    {
+        // Arrange
+        var url = new Url().AppendPath("segment1", "segment2");
+
+        // Act
+        var url2 = url.ClearPath();
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.PathSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WithQueryParameter_ShouldAddQueryParameter()
+    {
+        // Arrange
+        var url = new Url();
+
+        // Act
+        var url2 = url.WithQueryParameter("key", "value");
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.QueryParameters.TryGetValues("key", out var values).Should().BeTrue();
+        values.Should().Equal("value");
+    }
+
+    [Fact]
+    public void WithQueryParameters_ShouldAddQueryParameters()
+    {
+        // Arrange
+        var url = new Url();
+        var queryParameterCollection = new QueryParameterCollection();
+        queryParameterCollection.Add("key", "value");
+
+        // Act
+        var url2 = url.WithQueryParameters(queryParameterCollection);
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.QueryParameters.TryGetValues("key", out var values).Should().BeTrue();
+        values.Should().Equal("value");
+    }
+
+    [Fact]
+    public void AddQueryParameter_ShouldAddQueryParameter()
+    {
+        // Arrange
+        var url = new Url();
+
+        // Act
+        var url2 = url.AddQueryParameter("key", "value");
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.QueryParameters.TryGetValues("key", out var values).Should().BeTrue();
+        values.Should().Equal("value");
+    }
+
+    [Fact]
+    public void RemoveQueryParameter_ShouldRemoveQueryParameter()
+    {
+        // Arrange
+        var url = new Url().AddQueryParameter("key", "value");
+
+        // Act
+        var url2 = url.RemoveQueryParameter("key");
+
+        // Assert
+        url2.Should().BeSameAs(url);
+        url.QueryParameters.ContainsKey("key").Should().BeFalse();
     }
 }

@@ -110,6 +110,7 @@ public sealed partial class Url
     /// <returns>The updated <see cref="Url"/> instance.</returns>
     public Url WithQueryParameters(QueryParameterCollection queryParameters)
     {
+        ArgumentNullException.ThrowIfNull(queryParameters);
         _queryParameters = queryParameters;
         return this;
     }

@@ -1,10 +1,13 @@
 ﻿namespace Sidio.Http;
+
+using System.Diagnostics;
 using System.Text;
 
 /// <summary>
 /// Represents a URL and provides methods to manipulate its components, including scheme,
 /// host, port, path segments, and query parameters.
 /// </summary>
+[DebuggerDisplay("{ToString()}")]
 public sealed partial class Url
 {
     private const char PathSeparator = '/';
