@@ -211,6 +211,38 @@ public sealed partial class Url
         return uri == null ? throw new ArgumentNullException(nameof(uri), "URI cannot be null.") : Create(uri);
     }
 
+    /// <summary>
+    /// Converts a <see cref="Url"/> to a <see cref="Uri"/>.
+    /// </summary>
+    /// <param name="url">The URL to convert.</param>
+    /// <returns>An absolute or relative URI representing the URL.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the URL cannot be represented as a URI.</exception>
+    public static implicit operator Uri(Url url)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+
+        if (url.IsAbsolute)
+        {
+            return Uri.TryCreate(url.ToString(), UriKind.Absolute, out var absoluteUri)
+                ? absoluteUri
+                : throw new InvalidOperationException($"Cannot convert '{url}' to a URI.");
+        }
+
+        return Uri.TryCreate(url.ToString(), UriKind.Relative, out var uri)
+            ? uri
+            : throw new InvalidOperationException($"Cannot convert '{url}' to a URI.");
+    }
+
+    /// <summary>
+    /// Converts a <see cref="Uri"/> to a <see cref="Url"/>.
+    /// </summary>
+    /// <param name="uri">The URI to convert.</param>
+    /// <returns>A URL representing the URI.</returns>
+    public static implicit operator Url(Uri uri)
+    {
+        return From(uri);
+    }
+
     private static Url Create(Uri uri)
     {
         var url = new Url();

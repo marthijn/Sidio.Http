@@ -156,4 +156,78 @@ public sealed partial class UrlTests
         // Assert
         act.Should().Throw<InvalidOperationException>();
     }
+
+    [Fact]
+    public void ImplicitOperator_FromUrlToUri_ShouldCreateAbsoluteUri()
+    {
+        // Arrange
+        var url = Url.From("https://example.com:8443/path?q=one&q=two");
+
+        // Act
+        Uri uri = url;
+
+        // Assert
+        uri.IsAbsoluteUri.Should().BeTrue();
+        uri.AbsoluteUri.Should().Be("https://example.com:8443/path?q=one&q=two");
+    }
+
+    [Fact]
+    public void ImplicitOperator_FromUrlToUri_ShouldCreateRelativeUri()
+    {
+        // Arrange
+        var url = Url.From("/path?q=one");
+
+        // Act
+        Uri uri = url;
+
+        // Assert
+        uri.IsAbsoluteUri.Should().BeFalse();
+        uri.OriginalString.Should().Be("/path?q=one");
+    }
+
+    [Fact]
+    public void ImplicitOperator_FromUriToUrl_ShouldCreateAbsoluteUrl()
+    {
+        // Arrange
+        var uri = new Uri("https://example.com:8443/path?q=one&q=two", UriKind.Absolute);
+
+        // Act
+        Url url = uri;
+
+        // Assert
+        url.ToString().Should().Be("https://example.com:8443/path?q=one&q=two");
+        url.IsAbsolute.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ImplicitOperator_FromUriToUrl_ShouldCreateRelativeUrl()
+    {
+        // Arrange
+        var uri = new Uri("/path?q=one", UriKind.Relative);
+
+        // Act
+        Url url = uri;
+
+        // Assert
+        url.ToString().Should().Be("/path?q=one");
+        url.IsAbsolute.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ImplicitOperators_ShouldRoundTripAbsoluteUrl()
+    {
+        // Arrange
+        var original = Url.From("https://example.com/search?q=one&q=two");
+
+        // Act
+        Uri uri = original;
+        Url roundTripped = uri;
+
+        // Assert
+        roundTripped.Scheme.Should().Be("https");
+        roundTripped.Host.Should().Be("example.com");
+        roundTripped.PathSegments.Should().Equal("search");
+        roundTripped.QueryParameters.TryGetValues("q", out var values).Should().BeTrue();
+        values.Should().Equal("one", "two");
+    }
 }
