@@ -24,11 +24,13 @@ public interface IHttpRequest
     /// Gets a value indicating whether the request is valid. A request is considered valid if it has a non-null HTTP method and a non-null URL.
     /// </summary>
     /// <returns><c>true</c> if the request is valid; otherwise, <c>false</c>.</returns>
+    /// <seealso cref="Validate"/>
     internal bool IsValid();
 
     /// <summary>
     /// Validates the request and throws an exception if it is not valid. A request is considered valid if it has a non-null HTTP method and a non-null URL.
     /// </summary>
     /// <exception cref="InvalidHttpRequestException">Thrown if the request is not valid.</exception>
+    /// <seealso cref="IsValid"/>
     internal void Validate();
 }
