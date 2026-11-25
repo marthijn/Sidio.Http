@@ -67,7 +67,7 @@ public sealed partial class UrlTests
     }
 
     [Fact]
-    public void ToString_WithComponents_ShouldBuildUrl()
+    public void ToStringAndValue_WithComponents_ShouldBuildUrl()
     {
         // Arrange
         var url = new Url()
@@ -80,9 +80,11 @@ public sealed partial class UrlTests
 
         // Act
         var result = url.ToString();
+        var value = url.Value;
 
         // Assert
         result.Should().Be("https://example.com:8443/path%201/path2?q=hello%20world&tag=one&tag=two");
+        value.Should().Be("https://example.com:8443/path%201/path2?q=hello%20world&tag=one&tag=two");
     }
 
     [Fact]

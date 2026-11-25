@@ -7,8 +7,8 @@ using System.Text;
 /// Represents a URL and provides methods to manipulate its components, including scheme,
 /// host, port, path segments, and query parameters.
 /// </summary>
-[DebuggerDisplay("{ToString()}")]
-public sealed partial class Url
+[DebuggerDisplay("{Value}")]
+public sealed partial class Url : IUrl
 {
     private const char PathSeparator = '/';
 
@@ -138,6 +138,9 @@ public sealed partial class Url
     /// Gets a value indicating whether the URL is absolute (has both a scheme and a host).
     /// </summary>
     public bool IsAbsolute => !string.IsNullOrEmpty(Scheme) && !string.IsNullOrEmpty(Host);
+
+    /// <inheritdoc />
+    public string Value => ToString();
 
     /// <summary>
     /// Converts the current <see cref="Url"/> instance to an <see cref="AbsoluteUrl"/> instance.
