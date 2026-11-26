@@ -27,15 +27,22 @@ public readonly record struct AbsoluteUrl
     public override string ToString() => Value;
 
     /// <summary>
+    /// Converts the <see cref="AbsoluteUrl"/> to a <see cref="Uri"/> instance.
+    /// </summary>
+    /// <returns>A <see cref="Uri"/> representing the absolute URL.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the URL cannot be represented as a URI.</exception>
+    public Uri ToUri()
+    {
+        return Uri.TryCreate(Value, UriKind.Absolute, out var absoluteUri)
+            ? absoluteUri
+            : throw new InvalidOperationException($"Cannot convert '{this}' to a URI.");
+    }
+
+    /// <summary>
     /// Converts a <see cref="AbsoluteUrl"/> to a <see cref="Uri"/>.
     /// </summary>
     /// <param name="url">The URL to convert.</param>
     /// <returns>An absolute or relative URI representing the URL.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the URL cannot be represented as a URI.</exception>
-    public static implicit operator Uri(AbsoluteUrl url)
-    {
-        return Uri.TryCreate(url.Value, UriKind.Absolute, out var absoluteUri)
-            ? absoluteUri
-            : throw new InvalidOperationException($"Cannot convert '{url}' to a URI.");
-    }
+    public static implicit operator Uri(AbsoluteUrl url) => url.ToUri();
 }

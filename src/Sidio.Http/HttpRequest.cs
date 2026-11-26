@@ -2,14 +2,27 @@
 
 namespace Sidio.Http;
 
+/// <summary>
+/// Represents an HTTP request with method, URL, content, and headers.
+/// </summary>
 [DebuggerDisplay("{Method} {Url}")]
 public sealed partial class HttpRequest : IHttpRequest
 {
-    public HttpRequest(HttpMethod? method = null, IUrl? url = null, HttpContent? content = null)
+    private RequestHeaderCollection? _headers;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HttpRequest"/> class with the specified HTTP method, URL, content, and headers.
+    /// </summary>
+    /// <param name="method">The HTTP method of the request.</param>
+    /// <param name="url">The URL of the request.</param>
+    /// <param name="content">The content of the request.</param>
+    /// <param name="headers">The headers of the request.</param>
+    public HttpRequest(HttpMethod? method = null, IUrl? url = null, HttpContent? content = null, RequestHeaderCollection? headers = null)
     {
         Url = url;
         Method = method;
         Content = content;
+        _headers = headers;
     }
 
     /// <inheritdoc />
@@ -20,6 +33,9 @@ public sealed partial class HttpRequest : IHttpRequest
 
     /// <inheritdoc />
     public HttpContent? Content { get; private set; }
+
+    /// <inheritdoc />
+    public RequestHeaderCollection Headers => _headers ??= new RequestHeaderCollection();
 
     /// <inheritdoc />
     public bool IsValid()

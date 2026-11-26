@@ -9,14 +9,32 @@ public sealed partial class HttpRequestTests
         var method = HttpMethod.Get;
         var url = new Url().WithScheme("https").WithHost("example.com");
         var content = new StringContent("Test content");
+        var headers = new RequestHeaderCollection();
+        headers.Add("Accept", "application/json");
 
         // Act
-        var httpRequest = new HttpRequest(method, url, content);
+        var httpRequest = new HttpRequest(method, url, content, headers);
 
         // Assert
         httpRequest.Method.Should().Be(method);
         httpRequest.Url.Should().Be(url);
         httpRequest.Content.Should().Be(content);
+        httpRequest.Headers.Should().BeSameAs(headers);
+    }
+
+    [Fact]
+    public void Constructor_WithoutHeaders_ShouldInitializeEmptyHeadersCollection()
+    {
+        // Arrange
+        var method = HttpMethod.Get;
+        var url = new Url().WithScheme("https").WithHost("example.com");
+
+        // Act
+        var httpRequest = new HttpRequest(method, url);
+
+        // Assert
+        httpRequest.Headers.Should().NotBeNull();
+        httpRequest.Headers.Count.Should().Be(0);
     }
 
     [Fact]

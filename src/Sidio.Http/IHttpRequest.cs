@@ -1,7 +1,7 @@
 ﻿namespace Sidio.Http;
 
 /// <summary>
-/// Defines the contract for an HTTP request, including properties for the HTTP method, URL, and content.
+/// Defines the contract for an HTTP request, including properties for the HTTP method, URL, headers, and content.
 /// </summary>
 public interface IHttpRequest
 {
@@ -19,6 +19,11 @@ public interface IHttpRequest
     /// Gets the content of the request. This property can be null if the request does not have a body (e.g., for GET requests).
     /// </summary>
     HttpContent? Content { get; }
+
+    /// <summary>
+    /// Gets the headers for the request.
+    /// </summary>
+    RequestHeaderCollection Headers { get; }
 
     /// <summary>
     /// Gets a value indicating whether the request is valid. A request is considered valid if it has a non-null HTTP method and a non-null URL.
